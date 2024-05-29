@@ -229,3 +229,26 @@ func ParseFile(filename string) ([]Instruction, error) {
 	}
 	return insts, nil
 }
+
+func (i *Instruction) String() string {
+	switch i.T {
+	case CycleSet:
+		return fmt.Sprintf("C=\t%d", i.Cycle)
+	case Cycle:
+		return fmt.Sprintf("C\t%d", i.Cycle)
+	case Inst:
+		return fmt.Sprintf("I\t%d\t%d\t%d", i.Id, i.SimId, i.ThreadId)
+	case Label:
+		return fmt.Sprintf("L\t%d\t%d\t%s", i.Id, i.LabelType, i.Text)
+	case Stage:
+		return fmt.Sprintf("S\t%d\t%d\t%s", i.Id, i.LaneId, i.StageName)
+	case End:
+		return fmt.Sprintf("E\t%d\t%d\t%s", i.Id, i.LaneId, i.StageName)
+	case Retire:
+		return fmt.Sprintf("R\t%d\t%d\t%d", i.Id, i.RetireId, i.RetireType)
+	case WakeUp:
+		return fmt.Sprintf("W\t%d\t%d\t%d", i.Consumer, i.Producer, i.DependencyType)
+	default:
+		return fmt.Sprintf("UNKNOWN INSTRUCTION TYPE: %#v", i)
+	}
+}
