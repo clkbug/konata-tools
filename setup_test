@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -euxo pipefail
+cd "$(dirname "$0")"
+
+if [[ ! -f kanata-sample-1.log ]]; then
+    wget https://raw.githubusercontent.com/shioyadan/Konata/master/docs/kanata-sample-1.log
+fi
+if [[ ! -f kanata-sample-2.log.gz ]]; then
+    wget https://raw.githubusercontent.com/shioyadan/Konata/master/docs/kanata-sample-2.log.gz
+    gunzip kanata-sample-2.log.gz
+fi
