@@ -33,6 +33,7 @@ func ParseSymbolTableFile(filename string) (SymbolTable, error) {
 	if err != nil {
 		return SymbolTable{}, err
 	}
+	defer fp.Close()
 
 	st := SymbolTable{}
 	buf := bufio.NewScanner(fp)

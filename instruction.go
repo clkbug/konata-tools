@@ -207,6 +207,7 @@ func ParseFile(filename string) ([]Instruction, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer fp.Close()
 	buf := bufio.NewScanner(fp)
 	var insts []Instruction
 
