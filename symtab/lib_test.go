@@ -8,7 +8,7 @@ import (
 
 func testSetup() (symtab.SymbolTable, error) {
 	const filename = "coremark.symtab.txt"
-	return symtab.ParseSymbolTableFile(filename)
+	return symtab.ParseFile(filename)
 }
 func TestParseSymbolTableFile(t *testing.T) {
 	st, err := testSetup()

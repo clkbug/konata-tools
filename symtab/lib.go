@@ -28,7 +28,7 @@ type Symbol struct {
 
 type SymbolTable []Symbol
 
-func ParseSymbolTableFile(filename string) (SymbolTable, error) {
+func ParseFile(filename string) (SymbolTable, error) {
 	fp, err := os.Open(filename)
 	if err != nil {
 		return SymbolTable{}, err
