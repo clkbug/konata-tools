@@ -25,10 +25,20 @@ func ParseFile(filename string) (Program, error) {
 	buf := bufio.NewScanner(fp)
 	f := ""
 	var prog Program
+	inText := false
 
 	for buf.Scan() {
 		l := buf.Text()
 		if !strings.Contains(l, ":") {
+			continue
+		}
+
+		if strings.Contains(l, "Disassembly of section") || strings.Contains(l, "セクション") {
+			inText = strings.Contains(l, ".text")
+			continue
+		}
+
+		if !inText {
 			continue
 		}
 
@@ -56,4 +66,24 @@ func ParseFile(filename string) (Program, error) {
 		}
 	}
 	return prog, nil
+}
+
+func (p Program) Search(addr uint64) (Instruction, bool) {
+	low := 0
+	high := len(p) - 1
+	if addr < p[low].PC || p[high].PC < addr {
+		return Instruction{}, false
+	}
+	for 1 < high-low {
+		mid := (low + high) / 2
+		if p[mid].PC <= addr {
+			low = mid
+		} else {
+			high = mid
+		}
+	}
+	if p[low].PC == addr {
+		return p[low], true
+	}
+	return Instruction{}, false
 }
