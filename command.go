@@ -8,17 +8,17 @@ import (
 	"strings"
 )
 
-type InstType int
+type CmdType int
 
 const (
-	CycleSet InstType = iota // C= 	<CYCLE>
-	Cycle                    // C	<CYCLE>
-	Inst                     // I	<ID>	<SIM_ID>	<THREAD_ID>
-	Label                    // L	<ID>	<TYPE>	<TEXT>
-	Stage                    // S	<ID>	<LANE_ID>	<STAGE_NAME>
-	End                      // E	<ID>	<LANE_ID>	<STAGE_NAME>
-	Retire                   // R	<ID>	<RETIRE_ID>	<TYPE>
-	WakeUp                   // W	<CONSUMER_ID>	<PRODUCER_ID>	<TYPE>
+	CycleSet CmdType = iota // C= 	<CYCLE>
+	Cycle                   // C	<CYCLE>
+	Inst                    // I	<ID>	<SIM_ID>	<THREAD_ID>
+	Label                   // L	<ID>	<TYPE>	<TEXT>
+	Stage                   // S	<ID>	<LANE_ID>	<STAGE_NAME>
+	End                     // E	<ID>	<LANE_ID>	<STAGE_NAME>
+	Retire                  // R	<ID>	<RETIRE_ID>	<TYPE>
+	WakeUp                  // W	<CONSUMER_ID>	<PRODUCER_ID>	<TYPE>
 )
 
 type LabelType int
@@ -42,8 +42,8 @@ const (
 	WakeUpDependency DependencyType = iota
 )
 
-type Instruction struct {
-	T              InstType
+type Command struct {
+	T              CmdType
 	Cycle          int            // CycleSet/Cycle
 	Id             int            // Inst/Label/Stage/End/Retire/WakeUp
 	SimId          int            // Inst
@@ -59,41 +59,41 @@ type Instruction struct {
 	DependencyType DependencyType // WakeUp
 }
 
-func ParseLine(l string) (Instruction, error) {
+func ParseLine(l string) (Command, error) {
 	w := strings.Split(l, "\t")
 	switch w[0] {
 	case "C=":
 		cycle, err := strconv.Atoi(w[1])
 		if err != nil {
-			return Instruction{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
+			return Command{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
 		}
-		return Instruction{
+		return Command{
 			T:     CycleSet,
 			Cycle: cycle,
 		}, nil
 	case "C":
 		cycle, err := strconv.Atoi(w[1])
 		if err != nil {
-			return Instruction{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
+			return Command{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
 		}
-		return Instruction{
+		return Command{
 			T:     Cycle,
 			Cycle: cycle,
 		}, nil
 	case "I":
 		id, err := strconv.Atoi(w[1])
 		if err != nil {
-			return Instruction{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
+			return Command{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
 		}
 		sid, err := strconv.Atoi(w[2])
 		if err != nil {
-			return Instruction{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
+			return Command{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
 		}
 		tid, err := strconv.Atoi(w[3])
 		if err != nil {
-			return Instruction{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
+			return Command{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
 		}
-		return Instruction{
+		return Command{
 			T:        Inst,
 			Id:       id,
 			SimId:    sid,
@@ -102,7 +102,7 @@ func ParseLine(l string) (Instruction, error) {
 	case "L":
 		id, err := strconv.Atoi(w[1])
 		if err != nil {
-			return Instruction{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
+			return Command{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
 		}
 		var lt LabelType
 		switch w[2] {
@@ -113,9 +113,9 @@ func ParseLine(l string) (Instruction, error) {
 		case "2":
 			lt = CurrentStage
 		default:
-			return Instruction{}, fmt.Errorf("invalid label type(%s) in '%s'", w[2], l)
+			return Command{}, fmt.Errorf("invalid label type(%s) in '%s'", w[2], l)
 		}
-		return Instruction{
+		return Command{
 			T:         Label,
 			Id:        id,
 			LabelType: lt,
@@ -124,13 +124,13 @@ func ParseLine(l string) (Instruction, error) {
 	case "S":
 		id, err := strconv.Atoi(w[1])
 		if err != nil {
-			return Instruction{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
+			return Command{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
 		}
 		lid, err := strconv.Atoi(w[2])
 		if err != nil {
-			return Instruction{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
+			return Command{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
 		}
-		return Instruction{
+		return Command{
 			T:         Stage,
 			Id:        id,
 			LaneId:    lid,
@@ -139,11 +139,11 @@ func ParseLine(l string) (Instruction, error) {
 	case "R":
 		id, err := strconv.Atoi(w[1])
 		if err != nil {
-			return Instruction{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
+			return Command{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
 		}
 		rid, err := strconv.Atoi(w[2])
 		if err != nil {
-			return Instruction{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
+			return Command{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
 		}
 		var rt RetireType
 		switch w[3] {
@@ -152,9 +152,9 @@ func ParseLine(l string) (Instruction, error) {
 		case "1":
 			rt = Flush
 		default:
-			return Instruction{}, fmt.Errorf("unknown Retire Type(%s) in '%s'", w[3], l)
+			return Command{}, fmt.Errorf("unknown Retire Type(%s) in '%s'", w[3], l)
 		}
-		return Instruction{
+		return Command{
 			T:          Retire,
 			Id:         id,
 			RetireId:   rid,
@@ -163,13 +163,13 @@ func ParseLine(l string) (Instruction, error) {
 	case "E":
 		id, err := strconv.Atoi(w[1])
 		if err != nil {
-			return Instruction{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
+			return Command{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
 		}
 		lid, err := strconv.Atoi(w[2])
 		if err != nil {
-			return Instruction{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
+			return Command{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
 		}
-		return Instruction{
+		return Command{
 			T:         End,
 			Id:        id,
 			LaneId:    lid,
@@ -178,78 +178,78 @@ func ParseLine(l string) (Instruction, error) {
 	case "W":
 		cid, err := strconv.Atoi(w[1])
 		if err != nil {
-			return Instruction{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
+			return Command{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
 		}
 		pid, err := strconv.Atoi(w[2])
 		if err != nil {
-			return Instruction{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
+			return Command{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
 		}
 		var dt DependencyType
 		switch w[3] {
 		case "0":
 			dt = WakeUpDependency
 		default:
-			return Instruction{}, fmt.Errorf("failed to parse dependency type(%s) in '%s'", w[3], l)
+			return Command{}, fmt.Errorf("failed to parse dependency type(%s) in '%s'", w[3], l)
 		}
-		return Instruction{
+		return Command{
 			T:              WakeUp,
 			Consumer:       cid,
 			Producer:       pid,
 			DependencyType: dt,
 		}, nil
 	default:
-		return Instruction{}, fmt.Errorf("parse error '%s'", l)
+		return Command{}, fmt.Errorf("parse error '%s'", l)
 	}
 }
 
-func ParseFile(filename string) ([]Instruction, error) {
+func ParseFile(filename string) ([]Command, error) {
 	fp, err := os.Open(filename)
 	if err != nil {
 		return nil, err
 	}
 	defer fp.Close()
 	buf := bufio.NewScanner(fp)
-	var insts []Instruction
+	var cmds []Command
 
 	if buf.Scan() {
 		line := buf.Text()
 		if !strings.HasPrefix(line, "Kanata	0004") {
-			return insts, fmt.Errorf("failed to ParseFile(%s): invalid header '%s'", filename, line)
+			return cmds, fmt.Errorf("failed to ParseFile(%s): invalid header '%s'", filename, line)
 		}
 	} else {
-		return insts, fmt.Errorf("failed to ParseFile(%s): no header", filename)
+		return cmds, fmt.Errorf("failed to ParseFile(%s): no header", filename)
 	}
 
 	for buf.Scan() {
 		line := buf.Text()
-		inst, err := ParseLine(line)
+		cmd, err := ParseLine(line)
 		if err != nil {
 			return nil, err
 		}
-		insts = append(insts, inst)
+		cmds = append(cmds, cmd)
 	}
-	return insts, nil
+	return cmds, nil
 }
 
-func (i *Instruction) String() string {
-	switch i.T {
+func (c *Command) String() string {
+	switch c.T {
 	case CycleSet:
-		return fmt.Sprintf("C=\t%d", i.Cycle)
+		return fmt.Sprintf("C=\t%d", c.Cycle)
 	case Cycle:
-		return fmt.Sprintf("C\t%d", i.Cycle)
+		return fmt.Sprintf("C\t%d", c.Cycle)
 	case Inst:
-		return fmt.Sprintf("I\t%d\t%d\t%d", i.Id, i.SimId, i.ThreadId)
+		return fmt.Sprintf("I\t%d\t%d\t%d", c.Id, c.SimId, c.ThreadId)
 	case Label:
-		return fmt.Sprintf("L\t%d\t%d\t%s", i.Id, i.LabelType, i.Text)
+		return fmt.Sprintf("L\t%d\t%d\t%s", c.Id, c.LabelType, c.Text)
 	case Stage:
-		return fmt.Sprintf("S\t%d\t%d\t%s", i.Id, i.LaneId, i.StageName)
+		return fmt.Sprintf("S\t%d\t%d\t%s", c.Id, c.LaneId, c.StageName)
 	case End:
-		return fmt.Sprintf("E\t%d\t%d\t%s", i.Id, i.LaneId, i.StageName)
+		return fmt.Sprintf("E\t%d\t%d\t%s", c.Id, c.LaneId, c.StageName)
 	case Retire:
-		return fmt.Sprintf("R\t%d\t%d\t%d", i.Id, i.RetireId, i.RetireType)
+		return fmt.Sprintf("R\t%d\t%d\t%d", c.Id, c.RetireId, c.RetireType)
 	case WakeUp:
-		return fmt.Sprintf("W\t%d\t%d\t%d", i.Consumer, i.Producer, i.DependencyType)
+		return fmt.Sprintf("W\t%d\t%d\t%d", c.Consumer, c.Producer, c.DependencyType)
 	default:
-		return fmt.Sprintf("UNKNOWN INSTRUCTION TYPE: %#v", i)
+		return fmt.Sprintf("UNKNOWN COMMAND TYPE: %#v", c)
 	}
 }

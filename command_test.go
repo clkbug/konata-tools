@@ -24,7 +24,7 @@ func TestParser(t *testing.T) {
 }
 func TestStringer(t *testing.T) {
 	for _, input := range inputs {
-		insts, err := konata.ParseFile(input)
+		cmds, err := konata.ParseFile(input)
 		if err != nil {
 			t.Errorf("failed to ParseFile(%s): %s", input, err)
 		}
@@ -42,7 +42,7 @@ func TestStringer(t *testing.T) {
 			l := buf.Text()
 			lt := strings.TrimSpace(l)
 
-			r := insts[i]
+			r := cmds[i]
 			if l != r.String() && lt != r.String() {
 				t.Errorf("'%s' != '%s'[%v.String()]", l, r.String(), r)
 			}
