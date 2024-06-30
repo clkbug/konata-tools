@@ -60,6 +60,74 @@ type Command struct {
 	DependencyType DependencyType // WakeUp
 }
 
+func MakeCommandCycleSet(c int) (Command, error) {
+	return Command{
+		T:     CycleSet,
+		Cycle: c,
+	}, nil
+}
+
+func MakeCommandCycle(c int) (Command, error) {
+	return Command{
+		T:     Cycle,
+		Cycle: c,
+	}, nil
+}
+
+func MakeCommandInstruction(id, simId, threadId int) (Command, error) {
+	return Command{
+		T:        Inst,
+		Id:       id,
+		SimId:    simId,
+		ThreadId: threadId,
+	}, nil
+}
+
+func MakeCommandLabel(id int, labelType LabelType, label string) (Command, error) {
+	return Command{
+		T:         Label,
+		Id:        id,
+		LabelType: labelType,
+		Text:      label,
+	}, nil
+}
+
+func MakeCommandStage(id int, lane int, stage string) (Command, error) {
+	return Command{
+		T:         Stage,
+		Id:        id,
+		LaneId:    lane,
+		StageName: stage,
+	}, nil
+}
+
+func MakeCommandRetire(id, retireId int, retireType RetireType) (Command, error) {
+	return Command{
+		T:          Retire,
+		Id:         id,
+		RetireId:   retireId,
+		RetireType: retireType,
+	}, nil
+}
+
+func MakeCommandEnd(id int, lane int, stage string) (Command, error) {
+	return Command{
+		T:         End,
+		Id:        id,
+		LaneId:    lane,
+		StageName: stage,
+	}, nil
+}
+
+func MakeCommandWakeup(consumerId, producerId int, dependencyType DependencyType) (Command, error) {
+	return Command{
+		T:              WakeUp,
+		Consumer:       consumerId,
+		Producer:       producerId,
+		DependencyType: dependencyType,
+	}, nil
+}
+
 func ParseLine(l string) (Command, error) {
 	w := strings.Split(l, "\t")
 	switch w[0] {
@@ -68,19 +136,13 @@ func ParseLine(l string) (Command, error) {
 		if err != nil {
 			return Command{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
 		}
-		return Command{
-			T:     CycleSet,
-			Cycle: cycle,
-		}, nil
+		return MakeCommandCycleSet(cycle)
 	case "C":
 		cycle, err := strconv.Atoi(w[1])
 		if err != nil {
 			return Command{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
 		}
-		return Command{
-			T:     Cycle,
-			Cycle: cycle,
-		}, nil
+		return MakeCommandCycle(cycle)
 	case "I":
 		id, err := strconv.Atoi(w[1])
 		if err != nil {
@@ -94,12 +156,7 @@ func ParseLine(l string) (Command, error) {
 		if err != nil {
 			return Command{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
 		}
-		return Command{
-			T:        Inst,
-			Id:       id,
-			SimId:    sid,
-			ThreadId: tid,
-		}, nil
+		return MakeCommandInstruction(id, sid, tid)
 	case "L":
 		id, err := strconv.Atoi(w[1])
 		if err != nil {
@@ -116,12 +173,7 @@ func ParseLine(l string) (Command, error) {
 		default:
 			return Command{}, fmt.Errorf("invalid label type(%s) in '%s'", w[2], l)
 		}
-		return Command{
-			T:         Label,
-			Id:        id,
-			LabelType: lt,
-			Text:      w[3],
-		}, nil
+		return MakeCommandLabel(id, lt, w[3])
 	case "S":
 		id, err := strconv.Atoi(w[1])
 		if err != nil {
@@ -131,12 +183,7 @@ func ParseLine(l string) (Command, error) {
 		if err != nil {
 			return Command{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
 		}
-		return Command{
-			T:         Stage,
-			Id:        id,
-			LaneId:    lid,
-			StageName: w[3],
-		}, nil
+		return MakeCommandStage(id, lid, w[3])
 	case "R":
 		id, err := strconv.Atoi(w[1])
 		if err != nil {
@@ -155,12 +202,7 @@ func ParseLine(l string) (Command, error) {
 		default:
 			return Command{}, fmt.Errorf("unknown Retire Type(%s) in '%s'", w[3], l)
 		}
-		return Command{
-			T:          Retire,
-			Id:         id,
-			RetireId:   rid,
-			RetireType: rt,
-		}, nil
+		return MakeCommandRetire(id, rid, rt)
 	case "E":
 		id, err := strconv.Atoi(w[1])
 		if err != nil {
@@ -170,12 +212,7 @@ func ParseLine(l string) (Command, error) {
 		if err != nil {
 			return Command{}, fmt.Errorf("failed to Atoi(%s) in '%s', %s", w[1], l, err)
 		}
-		return Command{
-			T:         End,
-			Id:        id,
-			LaneId:    lid,
-			StageName: w[3],
-		}, nil
+		return MakeCommandEnd(id, lid, w[3])
 	case "W":
 		cid, err := strconv.Atoi(w[1])
 		if err != nil {
@@ -192,12 +229,7 @@ func ParseLine(l string) (Command, error) {
 		default:
 			return Command{}, fmt.Errorf("failed to parse dependency type(%s) in '%s'", w[3], l)
 		}
-		return Command{
-			T:              WakeUp,
-			Consumer:       cid,
-			Producer:       pid,
-			DependencyType: dt,
-		}, nil
+		return MakeCommandWakeup(cid, pid, dt)
 	default:
 		return Command{}, fmt.Errorf("parse error '%s'", l)
 	}
