@@ -21,6 +21,7 @@ func TestToInstructionSample1(t *testing.T) {
 		t.Errorf("len(prog) expected 2, but got %d", len(prog))
 	}
 
+	// ToDo: stage test
 	expected := []instruction.Instruction{
 		{Id: 0, Start: 216, Retire: 216 + 2, RetireType: konata.Successful},
 		{Id: 1, Start: 217, Retire: 217 + 2, RetireType: konata.Flush},
@@ -49,6 +50,7 @@ func TestToInstructionSample2(t *testing.T) {
 		t.Errorf("len(prog) expected 4041, but got %d", len(prog))
 	}
 
+	// ToDo: stage test
 	expected := []instruction.Instruction{
 		{Id: 0, Start: 0, Retire: 24, RetireType: konata.Successful},
 		{Id: 1, Start: 0, Retire: 15, RetireType: konata.Flush},
