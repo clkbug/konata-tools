@@ -8,8 +8,8 @@ import (
 
 type Instruction struct {
 	Id, SimId, ThreadId int
-	Start               int
-	Retire              int
+	Start               int // absolute
+	Retire              int // absolute, so latency = Retire - Start
 	RetireId            int
 	RetireType          konata.RetireType
 	Label               [konata.LabelTypeCount]string
@@ -17,7 +17,7 @@ type Instruction struct {
 }
 
 type Stage struct {
-	Start int
+	Start int // relative to Instruction.Start
 	End   int // opened. E command cycle not displayed
 	Name  string
 	Lane  int
@@ -25,8 +25,8 @@ type Stage struct {
 
 type Program []Instruction
 
-const NotRetiredYet int = -1
-const NotStageFinishedYet int = -1
+const NotRetired int = -1
+const NotStageFinished int = -1
 
 func ToProgram(cmds []konata.Command) (Program, error) {
 	var prog Program
@@ -47,7 +47,7 @@ cmdloop:
 					Id:       cmd.Id,
 					SimId:    cmd.SimId,
 					ThreadId: cmd.ThreadId,
-					Retire:   NotRetiredYet,
+					Retire:   NotRetired,
 					Start:    c,
 				})
 		case konata.Label:
@@ -60,18 +60,18 @@ cmdloop:
 				}
 			}
 			prog[cmd.Id].Stage = append(prog[cmd.Id].Stage, Stage{
-				Start: c,
-				End:   NotStageFinishedYet,
+				Start: c - prog[cmd.Id].Start,
+				End:   NotStageFinished,
 				Name:  cmd.StageName,
 				Lane:  cmd.LaneId,
 			})
 		case konata.End:
 			for i := range prog[cmd.Id].Stage {
-				if prog[cmd.Id].Stage[i].End != NotStageFinishedYet {
+				if prog[cmd.Id].Stage[i].End != NotStageFinished {
 					continue
 				}
 				if prog[cmd.Id].Stage[i].Lane == cmd.LaneId && prog[cmd.Id].Stage[i].Name == cmd.StageName {
-					prog[cmd.Id].Stage[i].End = c
+					prog[cmd.Id].Stage[i].End = c - prog[cmd.Id].Start
 					continue cmdloop
 				}
 				if prog[cmd.Id].Stage[i].Lane == cmd.LaneId || prog[cmd.Id].Stage[i].Name == cmd.StageName {
@@ -98,7 +98,7 @@ cmdloop:
 
 	// 正式にリタイアしていないものをリタイアさせる
 	for i := range prog {
-		if prog[i].Retire == NotRetiredYet {
+		if prog[i].Retire == NotRetired {
 			prog[i].Retire = c
 			prog[i].RetireId = prog[i].Id // ToDo: set apropriate retire id
 			prog[i].RetireType = konata.Successful
@@ -140,7 +140,7 @@ func (p Program) ToCommand() ([]konata.Command, error) {
 		for i := start; i < end; i++ {
 			// End Stage
 			for _, s := range p[i].Stage {
-				if s.End == c {
+				if p[i].Start+s.End == c {
 					e, err := konata.MakeCommandEnd(p[i].Id, s.Lane, s.Name)
 					if err != nil {
 						return cmds, err
@@ -150,7 +150,7 @@ func (p Program) ToCommand() ([]konata.Command, error) {
 			}
 			// Start Stage
 			for _, s := range p[i].Stage {
-				if s.Start == c {
+				if p[i].Start+s.Start == c {
 					e, err := konata.MakeCommandStage(p[i].Id, s.Lane, s.Name)
 					if err != nil {
 						return cmds, err
