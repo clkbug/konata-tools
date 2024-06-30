@@ -27,7 +27,10 @@ func TestToInstructionSample1(t *testing.T) {
 	}
 
 	for i, c := range prog {
-		if c != expected[i] {
+		if c.Id != expected[i].Id ||
+			c.Start != expected[i].Start ||
+			c.Retire != expected[i].Retire ||
+			c.RetireType != expected[i].RetireType {
 			t.Errorf("prog[%d]: expected %v, but got %v", i, expected[i], c)
 		}
 	}
@@ -61,7 +64,10 @@ func TestToInstructionSample2(t *testing.T) {
 			continue
 		}
 
-		if c != expected[j] {
+		if c.Id != expected[j].Id ||
+			c.Start != expected[j].Start ||
+			c.Retire != expected[j].Retire ||
+			c.RetireType != expected[j].RetireType {
 			t.Errorf("prog[%d]: expected %v, but got %v", i, expected[j], c)
 		}
 		j++

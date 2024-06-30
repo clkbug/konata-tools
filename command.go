@@ -27,6 +27,7 @@ const (
 	LeftPane LabelType = iota
 	MouseOver
 	CurrentStage
+	LabelTypeCount
 )
 
 type RetireType int
