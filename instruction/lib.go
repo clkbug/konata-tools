@@ -2,6 +2,7 @@ package instruction
 
 import (
 	"fmt"
+	"log/slog"
 
 	"github.com/clkbug/konata-tools"
 )
@@ -21,6 +22,7 @@ type Stage struct {
 	End   int // opened. E command cycle not displayed
 	Name  string
 	Lane  int
+	Label string
 }
 
 type Program []Instruction
@@ -51,7 +53,11 @@ cmdloop:
 					Start:    c,
 				})
 		case konata.Label:
-			prog[cmd.Id].Label[cmd.LabelType] = cmd.Text
+			if cmd.LabelType == konata.CurrentStage {
+				slog.Warn("unsupported Stage Label")
+			} else {
+				prog[cmd.Id].Label[cmd.LabelType] = cmd.Text
+			}
 		case konata.Stage:
 			for i := range prog[cmd.Id].Stage {
 				if prog[cmd.Id].Stage[i].Lane == cmd.LaneId {
