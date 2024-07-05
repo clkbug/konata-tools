@@ -2,6 +2,7 @@ package instruction2
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/clkbug/konata-tools"
 	"github.com/clkbug/konata-tools/instruction"
@@ -50,7 +51,8 @@ func ToProgram(cmds []konata.Command) (Program, error) {
 	}
 	for _, inst := range p {
 		var info InstInfo
-		err := yaml.Unmarshal([]byte(inst.Label[1]), &info)
+		label := strings.ReplaceAll(inst.Label[1], "\\n", "\n")
+		err := yaml.Unmarshal([]byte(label), &info)
 		if err != nil {
 			return prog, err
 		}

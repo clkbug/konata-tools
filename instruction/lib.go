@@ -56,7 +56,7 @@ cmdloop:
 			if cmd.LabelType == konata.CurrentStage {
 				slog.Warn("unsupported Stage Label")
 			} else {
-				prog[cmd.Id].Label[cmd.LabelType] = cmd.Text
+				prog[cmd.Id].Label[cmd.LabelType] += cmd.Text
 			}
 		case konata.Stage:
 			for i := range prog[cmd.Id].Stage {
