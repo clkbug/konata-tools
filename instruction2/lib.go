@@ -17,6 +17,7 @@ type Instruction struct {
 type InstInfo struct {
 	PC        uint64    `yaml:"pc"`
 	Code      uint64    `yaml:"code"`
+	Mnemonic  string    `yaml:"mnemonic"`
 	RobId     int       `yaml:"roid"`
 	LogRd     int       `yaml:"rd"`
 	LogRs1    int       `yaml:"rs1"`
