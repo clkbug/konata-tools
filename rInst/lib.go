@@ -1,16 +1,16 @@
-package instruction2
+package rInst
 
 import (
 	"fmt"
 	"strings"
 
 	"github.com/clkbug/konata-tools"
-	"github.com/clkbug/konata-tools/instruction"
+	"github.com/clkbug/konata-tools/kInst"
 	"github.com/goccy/go-yaml"
 )
 
 type Instruction struct {
-	instruction.Instruction
+	kInst.Instruction
 	InstInfo
 }
 
@@ -46,7 +46,7 @@ type Program []Instruction
 
 func ToProgram(cmds []konata.Command) (Program, error) {
 	var prog Program
-	p, err := instruction.ToProgram(cmds)
+	p, err := kInst.ToProgram(cmds)
 	if err != nil {
 		return prog, err
 	}
@@ -67,7 +67,7 @@ func ToProgram(cmds []konata.Command) (Program, error) {
 }
 
 func (p Program) ToCommand() ([]konata.Command, error) {
-	var insts instruction.Program
+	var insts kInst.Program
 	for _, i := range p {
 		insts = append(insts, i.Instruction)
 	}

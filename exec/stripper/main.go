@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/clkbug/konata-tools"
-	"github.com/clkbug/konata-tools/instruction"
+	"github.com/clkbug/konata-tools/kInst"
 )
 
 func main() {
@@ -15,7 +15,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	progs, err := instruction.ToProgram(cmds)
+	progs, err := kInst.ToProgram(cmds)
 	if err != nil {
 		panic(err)
 	}

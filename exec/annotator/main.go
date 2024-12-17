@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/clkbug/konata-tools"
-	"github.com/clkbug/konata-tools/instruction2"
+	"github.com/clkbug/konata-tools/rInst"
 )
 
 func run() error {
@@ -14,7 +14,7 @@ func run() error {
 		if err != nil {
 			return err
 		}
-		prog, err := instruction2.ToProgram(cmds)
+		prog, err := rInst.ToProgram(cmds)
 		if err != nil {
 			return err
 		}

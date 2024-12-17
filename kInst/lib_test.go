@@ -1,10 +1,10 @@
-package instruction_test
+package kInst_test
 
 import (
 	"testing"
 
 	"github.com/clkbug/konata-tools"
-	"github.com/clkbug/konata-tools/instruction"
+	"github.com/clkbug/konata-tools/kInst"
 )
 
 func TestToInstructionSample1(t *testing.T) {
@@ -12,7 +12,7 @@ func TestToInstructionSample1(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	prog, err := instruction.ToProgram(cmds)
+	prog, err := kInst.ToProgram(cmds)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -22,7 +22,7 @@ func TestToInstructionSample1(t *testing.T) {
 	}
 
 	// ToDo: stage test
-	expected := []instruction.Instruction{
+	expected := []kInst.Instruction{
 		{Id: 0, Start: 216, Retire: 216 + 2, RetireType: konata.Successful},
 		{Id: 1, Start: 217, Retire: 217 + 2, RetireType: konata.Flush},
 	}
@@ -41,7 +41,7 @@ func TestToInstructionSample2(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	prog, err := instruction.ToProgram(cmds)
+	prog, err := kInst.ToProgram(cmds)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,7 +51,7 @@ func TestToInstructionSample2(t *testing.T) {
 	}
 
 	// ToDo: stage test
-	expected := []instruction.Instruction{
+	expected := []kInst.Instruction{
 		{Id: 0, Start: 0, Retire: 24, RetireType: konata.Successful},
 		{Id: 1, Start: 0, Retire: 15, RetireType: konata.Flush},
 		{Id: 2, Start: 13, Retire: 16, RetireType: konata.Flush},
